@@ -1,103 +1,121 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <!-- 1. Base href per risolvere tutti i path sotto /TimesheetOz/ -->
-  <base href="/TimesheetOz/">
-  <!-- 2. Manifest PWA locale -->
-  <link rel="manifest" href="/TimesheetOz/manifest.json">
-
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <!-- Colore barra di sistema -->
-  <meta name="theme-color" content="#2B3D92" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#2B3D92">
+  <link rel="manifest" href="manifest.json">
   <title>TimeSheet App</title>
 
   <style>
-    body { margin:0; padding:0; font-family: sans-serif; background-color:#2B3D92; color:#fff }
-    .container { max-width:400px; margin:0 auto; padding:20px }
-    .logo { max-width:100%; height:auto; display:block; margin:30px auto 20px }
-    h1 { text-align:center; font-size:28px; margin:10px 0 }
-    p.subtitle { text-align:center; font-size:16px; margin-bottom:5px }
-    p.signature { text-align:center; font-size:12px; color:#d1d5db; margin-bottom:30px }
-    input { width:100%; padding:16px; font-size:18px; margin-bottom:15px; border:1px solid #d1d5db; border-radius:10px; box-sizing:border-box }
-    button { width:100%; padding:16px; font-size:18px; background:#fff; color:#2B3D92; border:none; border-radius:10px; cursor:pointer; margin-bottom:15px }
-    button:hover { background:#f3f4f6 }
-    .install-btn { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); display:none; padding:12px 20px; font-size:16px; background:#fff; color:#2B3D92; border:none; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.3); cursor:pointer }
-    .error { color:#f88; text-align:center; margin-bottom:15px }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+      background-color: #2B3D92;
+      color: white;
+    }
+
+    .container {
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .logo {
+      width: 100px;
+      height: 100px;
+      margin: 30px auto 20px;
+      display: block;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 28px;
+      margin: 10px 0;
+    }
+
+    p.subtitle {
+      text-align: center;
+      font-size: 16px;
+      margin-bottom: 5px;
+    }
+
+    p.signature {
+      text-align: center;
+      font-size: 12px;
+      color: #d1d5db;
+      margin-bottom: 30px;
+    }
+
+    input {
+      width: 100%;
+      padding: 16px;
+      font-size: 18px;
+      margin-bottom: 15px;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      box-sizing: border-box;
+    }
+
+    button {
+      width: 100%;
+      padding: 16px;
+      font-size: 18px;
+      background-color: white;
+      color: #2B3D92;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-bottom: 15px;
+    }
+
+    button:hover {
+      background-color: #f3f4f6;
+    }
+
+    .install-btn {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      display: none;
+      background: white;
+      color: #2B3D92;
+      padding: 12px 16px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
   </style>
 </head>
 <body>
-  <div class="container" id="login-container">
-    <!-- Logo locale -->
-    <img src="icon192.png" alt="Logo" class="logo" />
 
+  <div class="container">
+    <img src="icon192.png" alt="Logo" class="logo" />
     <h1>TimeSheet App</h1>
     <p class="subtitle">Gestione Ore MagazziniOz scs ETS</p>
     <p class="signature">By Luca Ruffino</p>
 
-    <input type="text"    placeholder="Username" id="username" />
-    <input type="password" placeholder="Password" id="password" />
-    <div class="error" id="loginError"></div>
+    <input type="text" placeholder="Username" id="username">
+    <input type="password" placeholder="Password" id="password">
     <button id="btnLogin">Accedi</button>
   </div>
 
-  <!-- Bottone Installa PWA -->
   <button id="installBtn" class="install-btn">📲 Installa App</button>
 
   <script>
-    // URL della Web App GAS (EXEC)
-    const BACKEND_URL  = 'https://script.google.com/macros/s/AKfycby6hIYGuZqTcDgSL7ZqmpDyBiPO0afEQWFvb1L8rp-RBfIb1ihVzm-xU-sRuQjrtICF/exec';
-    const API_PASSWORD = '79857985';
-
-    // Funzione di chiamata all’API GAS
-    async function callAPI(action, params = {}) {
-      const qs = new URLSearchParams({ action, apiPassword: API_PASSWORD });
-      Object.entries(params).forEach(([k, v]) => qs.append(k, v));
-      const url = `${BACKEND_URL}?${qs.toString()}`;
-      const resp = await fetch(url);
-      return resp.json();
-    }
-
-    // Login
-    document.getElementById('btnLogin').addEventListener('click', async () => {
-      const username = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value;
-      const errEl    = document.getElementById('loginError');
-      errEl.textContent = '';
-      if (!username || !password) {
-        errEl.textContent = 'Inserisci username e password';
-        return;
-      }
-      const result = await callAPI('authenticate', { username, password });
-      if (!result.success) {
-        errEl.textContent = result.message || 'Login fallito';
-        return;
-      }
-      // Successo
-      document.body.innerHTML = 
-        `<p style="text-align:center;color:#fff;margin-top:40vh;">
-           Benvenuto, ${result.user.nome}!
-         </p>`;
-    });
-
-    // Registrazione Service Worker (path assoluto su GH Pages)
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        <script>
-          if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-              navigator.serviceWorker
-                .register('/TimesheetOz/sw.js')
-                .then(() => console.log('✅ SW registrato'))
-                .catch(err => console.error('❌ SW error', err));
-            });
-          }
-        </script>
-
+        navigator.serviceWorker.register('/TimesheetOz/sw.js')
+          .then(() => console.log('✅ Service Worker registrato'))
+          .catch(err => console.error('❌ SW error', err));
       });
     }
 
-    // Prompt per installazione PWA
     let deferredPrompt;
     window.addEventListener('beforeinstallprompt', e => {
       e.preventDefault();
@@ -108,16 +126,17 @@
     document.getElementById('installBtn').addEventListener('click', async () => {
       if (!deferredPrompt) return;
       deferredPrompt.prompt();
-      await deferredPrompt.userChoice;
+      const choice = await deferredPrompt.userChoice;
+      console.log('Outcome:', choice.outcome);
       deferredPrompt = null;
       document.getElementById('installBtn').style.display = 'none';
     });
 
     window.addEventListener('appinstalled', () => {
-      console.log('► App installata');
+      console.log('App installata');
       document.getElementById('installBtn').style.display = 'none';
     });
   </script>
+
 </body>
 </html>
-
