@@ -40,10 +40,11 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby6hIYGuZqTcDgSL7Zqm
 
 async function callAPI(action, params = {}) {
   const query = new URLSearchParams({ action, apiPassword: '79857985', ...params });
-  const url = `${WORKER_URL}?url=${encodeURIComponent(SCRIPT_URL + '?' + query.toString())}`;
-  const response = await fetch(url);
+  const proxiedUrl = `${SCRIPT_URL}?${query.toString()}`;
+  const response = await fetch(`${WORKER_URL}?url=${encodeURIComponent(proxiedUrl)}`);
   return response.json();
 }
+
 
     const API_PASSWORD = '79857985';
 
@@ -109,6 +110,7 @@ async function callAPI(action, params = {}) {
   </script>
 </body>
 </html>
+
 
 
 
