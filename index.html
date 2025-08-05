@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#2B3D92">
-  <link rel="manifest" href="manifest.json">
+  <link rel="manifest" href="<?= SCRIPT_URL ?>?path=manifest.json">
   <title>TimeSheet App</title>
   <style>
     body { margin:0; padding:0; font-family: sans-serif; background-color:#2B3D92; color:#fff }
@@ -71,13 +71,16 @@ async function callAPI(action, params = {}) {
     });
 
     // Service Worker per installazione PWA
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/TimesheetOz/sw.js')
-          .then(() => console.log('✅ SW registrato'))
-          .catch(err => console.error('❌ SW error', err));
-      });
-    }
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby6hIYGuZqTcDgSL7ZqmpDyBiPO0afEQWFvb1L8rp-RBfIb1ihVzm-xU-sRuQjrtICF/exec';
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker
+      .register(`${SCRIPT_URL}?path=sw.js`, { scope: `${SCRIPT_URL}?path=` })
+      .then(() => console.log('✅ SW registrato'))
+      .catch(err => console.error('❌ SW error', err));
+  });
+}
 
     let deferredPrompt;
     window.addEventListener('beforeinstallprompt', e => {
@@ -100,5 +103,6 @@ async function callAPI(action, params = {}) {
   </script>
 </body>
 </html>
+
 
 
