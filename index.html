@@ -1,14 +1,17 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
+  <!-- 1. Base href per risolvere tutti i path sotto /TimesheetOz/ -->
+  <base href="/TimesheetOz/">
+  <!-- 2. Manifest PWA locale -->
+  <link rel="manifest" href="/TimesheetOz/manifest.json">
+
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <!-- Colore barra di sistema -->
-  <meta name="theme-color" content="#2B3D92">
-  <!-- Manifest PWA -->
-  <link rel="manifest"
-        href="https://script.google.com/macros/s/AKfycby6hIYGuZqTcDgSL7ZqmpDyBiPO0afEQWFvb1L8rp-RBfIb1ihVzm-xU-sRuQjrtICF/exec?path=manifest.json">
+  <meta name="theme-color" content="#2B3D92" />
   <title>TimeSheet App</title>
+
   <style>
     body { margin:0; padding:0; font-family: sans-serif; background-color:#2B3D92; color:#fff }
     .container { max-width:400px; margin:0 auto; padding:20px }
@@ -25,14 +28,15 @@
 </head>
 <body>
   <div class="container" id="login-container">
-    <!-- Logo servito dalla WebApp -->
-    <img src="https://script.google.com/macros/s/AKfycby6hIYGuZqTcDgSL7ZqmpDyBiPO0afEQWFvb1L8rp-RBfIb1ihVzm-xU-sRuQjrtICF/exec?path=icon192.png"
-         alt="Logo" class="logo">
+    <!-- Logo locale -->
+    <img src="icon192.png" alt="Logo" class="logo" />
+
     <h1>TimeSheet App</h1>
     <p class="subtitle">Gestione Ore MagazziniOz scs ETS</p>
     <p class="signature">By Luca Ruffino</p>
-    <input type="text"    placeholder="Username" id="username">
-    <input type="password" placeholder="Password" id="password">
+
+    <input type="text"    placeholder="Username" id="username" />
+    <input type="password" placeholder="Password" id="password" />
     <div class="error" id="loginError"></div>
     <button id="btnLogin">Accedi</button>
   </div>
@@ -41,15 +45,15 @@
   <button id="installBtn" class="install-btn">📲 Installa App</button>
 
   <script>
-    // URL della tua Web App GAS (EXEC)
-    const BACKEND_URL = 'https://script.google.com/macros/s/AKfycby6hIYGuZqTcDgSL7ZqmpDyBiPO0afEQWFvb1L8rp-RBfIb1ihVzm-xU-sRuQjrtICF/exec';
+    // URL della Web App GAS (EXEC)
+    const BACKEND_URL  = 'https://script.google.com/macros/s/AKfycby6hIYGuZqTcDgSL7ZqmpDyBiPO0afEQWFvb1L8rp-RBfIb1ihVzm-xU-sRuQjrtICF/exec';
     const API_PASSWORD = '79857985';
 
     // Funzione di chiamata all’API GAS
     async function callAPI(action, params = {}) {
-      const query = new URLSearchParams({ action, apiPassword: API_PASSWORD });
-      Object.entries(params).forEach(([k,v]) => query.append(k, v));
-      const url = `${BACKEND_URL}?${query.toString()}`;
+      const qs = new URLSearchParams({ action, apiPassword: API_PASSWORD });
+      Object.entries(params).forEach(([k, v]) => qs.append(k, v));
+      const url = `${BACKEND_URL}?${qs.toString()}`;
       const resp = await fetch(url);
       return resp.json();
     }
@@ -76,23 +80,24 @@
          </p>`;
     });
 
-    // REGISTER SERVICE WORKER
+    // Registrazione Service Worker (path assoluto su GH Pages)
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker
-          .register(`${BACKEND_URL}?path=sw.js`)
+          .register('/TimesheetOz/sw.js')
           .then(() => console.log('✅ SW registrato'))
           .catch(err => console.error('❌ SW error', err));
       });
     }
 
-    // PROMPT INSTALLAZIONE PWA
+    // Prompt per installazione PWA
     let deferredPrompt;
     window.addEventListener('beforeinstallprompt', e => {
       e.preventDefault();
       deferredPrompt = e;
       document.getElementById('installBtn').style.display = 'block';
     });
+
     document.getElementById('installBtn').addEventListener('click', async () => {
       if (!deferredPrompt) return;
       deferredPrompt.prompt();
@@ -100,6 +105,7 @@
       deferredPrompt = null;
       document.getElementById('installBtn').style.display = 'none';
     });
+
     window.addEventListener('appinstalled', () => {
       console.log('► App installata');
       document.getElementById('installBtn').style.display = 'none';
