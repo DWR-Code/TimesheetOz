@@ -35,7 +35,15 @@
   <button id="installBtn" class="install-btn">📲 Installa App</button>
 
   <script>
-const BACKEND_URL = 'https://cors-anywhere.herokuapp.com/https://script.google.com/macros/s/AKfycbxQqjDr2ovgzO2x2h8G-FFJc7XiGCAyhDu2_Sbe4pGSNySYaJmz3WF0TyHQ6ghukWM_jw/exec';
+const WORKER_URL = 'https://steep-sunset-a54e.archiviazione.workers.dev';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby6hIYGuZqTcDgSL7ZqmpDyBiPO0afEQWFvb1L8rp-RBfIb1ihVzm-xU-sRuQjrtICF/exec';
+
+async function callAPI(action, params = {}) {
+  const query = new URLSearchParams({ action, apiPassword: '79857985', ...params });
+  const url = `${WORKER_URL}?url=${encodeURIComponent(SCRIPT_URL + '?' + query.toString())}`;
+  const response = await fetch(url);
+  return response.json();
+}
 
     const API_PASSWORD = '79857985';
 
@@ -101,5 +109,6 @@ async function callAPI(action, params = {}) {
   </script>
 </body>
 </html>
+
 
 
