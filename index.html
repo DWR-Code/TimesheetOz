@@ -34,82 +34,71 @@
 
   <button id="installBtn" class="install-btn">📲 Installa App</button>
 
-  <script>
-const WORKER_URL = 'https://steep-sunset-a54e.archiviazione.workers.dev';
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby6hIYGuZqTcDgSL7ZqmpDyBiPO0afEQWFvb1L8rp-RBfIb1ihVzm-xU-sRuQjrtICF/exec';
+<script>
+  const WORKER_URL = 'https://steep-sunset-a54e.archiviazione.workers.dev';
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby6hIYGuZqTcDgSL7ZqmpDyBiPO0afEQWFvb1L8rp-RBfIb1ihVzm-xU-sRuQjrtICF/exec';
 
-async function callAPI(action, params = {}) {
-  const query = new URLSearchParams({ action, apiPassword: '79857985', ...params });
-  const proxiedUrl = `${SCRIPT_URL}?${query.toString()}`;
-  const response = await fetch(`${WORKER_URL}?url=${encodeURIComponent(proxiedUrl)}`);
-  return response.json();
-}
+  async function callAPI(action, params = {}) {
+    const query = new URLSearchParams({ action, apiPassword: '79857985', ...params });
+    const proxiedUrl = `${SCRIPT_URL}?${query.toString()}`;
+    const response = await fetch(`${WORKER_URL}?url=${encodeURIComponent(proxiedUrl)}`);
+    return response.json();
+  }
 
+  document.getElementById('btnLogin').addEventListener('click', async () => {
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+    const errEl = document.getElementById('loginError');
+    errEl.textContent = '';
 
-    const API_PASSWORD = '79857985';
-
-async function callAPI(action, params = {}) {
-  const query = new URLSearchParams({ action, apiPassword: API_PASSWORD });
-  Object.entries(params).forEach(([k,v]) => query.append(k, v));
-  const url = BACKEND_URL + '?' + query.toString();
-  const response = await fetch(url);
-  return response.json();
-}
-
-
-    document.getElementById('btnLogin').addEventListener('click', async () => {
-      const username = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value;
-      const errEl = document.getElementById('loginError');
-      errEl.textContent = '';
-
-      if (!username || !password) {
-        errEl.textContent = 'Inserisci username e password';
-        return;
-      }
-
-      const result = await callAPI('authenticate', { username, password, apiPassword: API_PASSWORD });
-      if (!result.success) {
-        errEl.textContent = result.message || 'Login fallito';
-        return;
-      }
-
-      // login successo: salva user info e carica i dati
-      // Da qui puoi navigare alla UI principale o aggiornare il DOM...
-      console.log('Utente autenticato:', result.user);
-      document.body.innerHTML = '<p style="text-align:center;color:#fff;margin-top:40vh;">Benvenuto, '+result.user.nome+'!</p>';
-    });
-
-    // Service Worker per installazione PWA
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/TimesheetOz/sw.js')
-          .then(() => console.log('✅ SW registrato'))
-          .catch(err => console.error('❌ SW error', err));
-      });
+    if (!username || !password) {
+      errEl.textContent = 'Inserisci username e password';
+      return;
     }
 
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', e => {
-      e.preventDefault();
-      deferredPrompt = e;
-      document.getElementById('installBtn').style.display = 'block';
-    });
+    const result = await callAPI('authenticate', { username, password });
+    if (!result.success) {
+      errEl.textContent = result.message || 'Login fallito';
+      return;
+    }
 
-    document.getElementById('installBtn').addEventListener('click', async () => {
-      if (!deferredPrompt) return;
-      deferredPrompt.prompt();
-      await deferredPrompt.userChoice;
-      deferredPrompt = null;
-      document.getElementById('installBtn').style.display = 'none';
+    document.body.innerHTML = '<p style="text-align:center;color:#fff;margin-top:40vh;">Benvenuto, ' + result.user.nome + '!</p>';
+  });
+
+  // Service Worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/TimesheetOz/sw.js')
+        .then(() => console.log('✅ SW registrato'))
+        .catch(err => console.error('❌ SW error', err));
     });
-    window.addEventListener('appinstalled', () => {
-      console.log('App installata');
-      document.getElementById('installBtn').style.display = 'none';
-    });
-  </script>
+  }
+
+  // Installazione PWA
+  let deferredPrompt;
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    document.getElementById('installBtn').style.display = 'block';
+  });
+
+  document.getElementById('installBtn').addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    document.getElementById('installBtn').style.display = 'none';
+  });
+
+  window.addEventListener('appinstalled', () => {
+    console.log('App installata');
+    document.getElementById('installBtn').style.display = 'none';
+  });
+</script>
+
 </body>
 </html>
+
 
 
 
