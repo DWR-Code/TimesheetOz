@@ -38,19 +38,14 @@
     const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbxQqjDr2ovgzO2x2h8G-FFJc7XiGCAyhDu2_Sbe4pGSNySYaJmz3WF0TyHQ6ghukWM_jw/exec';
     const API_PASSWORD = '79857985';
 
-    async function callAPI(action, params = {}) {
-      try {
-        const response = await fetch(BACKEND_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action, params })
-        });
-        return await response.json();
-      } catch (err) {
-        console.error('API error', err);
-        return { success: false, message: err.message };
-      }
-    }
+async function callAPI(action, params = {}) {
+  const query = new URLSearchParams({ action, apiPassword: API_PASSWORD });
+  Object.entries(params).forEach(([k,v]) => query.append(k, v));
+  const url = BACKEND_URL + '?' + query.toString();
+  const response = await fetch(url);
+  return response.json();
+}
+
 
     document.getElementById('btnLogin').addEventListener('click', async () => {
       const username = document.getElementById('username').value.trim();
