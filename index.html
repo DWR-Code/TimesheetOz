@@ -83,10 +83,17 @@
     // Registrazione Service Worker (path assoluto su GH Pages)
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker
-          .register('/TimesheetOz/sw.js')
-          .then(() => console.log('✅ SW registrato'))
-          .catch(err => console.error('❌ SW error', err));
+        <script>
+          if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+              navigator.serviceWorker
+                .register('/TimesheetOz/sw.js')
+                .then(() => console.log('✅ SW registrato'))
+                .catch(err => console.error('❌ SW error', err));
+            });
+          }
+        </script>
+
       });
     }
 
@@ -113,3 +120,4 @@
   </script>
 </body>
 </html>
+
